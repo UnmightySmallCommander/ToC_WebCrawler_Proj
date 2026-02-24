@@ -4,54 +4,54 @@ from bs4 import BeautifulSoup
 import time
 from datetime import datetime, date
 import random
-url = "https://en.wikipedia.org/wiki/List_of_K-pop_artists"  # Wikipedia page that lists K-pop artists
 
 headers = {
  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",  # Pretend the request comes from a real browser
  "Accept-Language": "en-US,en;q=0.9"
 }
 
+# --- 1. Configuration & Setup ---
+MAX_ARTISTS = 4000
+IN_ORDER = True 
+HUB_URL = "https://en.wikipedia.org/wiki/List_of_K-pop_artists" # Replace with your target URL
+HEADERS = {
+ "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+ "Accept-Language": "en-US,en;q=0.9"
+}
+FILE = open("dataset.txt", "w", encoding="utf-8")
+FULL_DETAILS = False
+TIME_TELL = True  
+# Load nationalities for regex
 with open("nationalities.txt") as f:
-    nationalities = [line.strip() for line in f]  # Read each nationality line into a list
+    nationalities = [line.strip() for line in f]
+nationality_pattern = r"\b(" + "|".join(nationalities) + r")\b"
 
-nationality_pattern = r"\b(" + "|".join(nationalities) + r")\b"  # Build regex pattern dynamically
+# --- 2. Fetch Hub Page & Collect URLs ---
+response = requests.get(HUB_URL, headers=HEADERS)
+if response.status_code != 200:
+    print(f"Failed to reach hub page. Status: {response.status_code}")
+    exit()
 
-response = requests.get(url, headers=headers)  # Send request to Wikipedia
-print(response.status_code)  # Check if request worked (200 = success)
-
-html = response.text  # Get raw HTML from the page
-hub_soup = BeautifulSoup(html, "html.parser")  # Parse HTML so we can search elements
-
-artist_urls = []  # List to store artist page URLs
-
-MAX_ARTISTS = 4000  # Limit number of artists while testing
-
-file = open("dataset.txt", "w", encoding="utf-8")
-
-time_start = time.time()  # Start timer to track how long the crawling takes
-elapsed_time_list = []  # List to store elapsed time for each artist
+hub_soup = BeautifulSoup(response.text, "html.parser")
+artist_urls = []  # Using a set to automatically ignore duplicates
 
 for div in hub_soup.find_all("div", class_="div-col"):
-
     for a in div.select("li a"):
-
         href = a.get("href")
+        
+        # Validation
+        if href and href.startswith("/wiki/"):
+            if not any(x in href for x in [":", "#", "Main_Page", "List_of", "Category"]):
+                artist_urls.append("https://en.wikipedia.org" + href)
 
-        if not href or not href.startswith("/wiki/"):
-            continue
+if not IN_ORDER:
+    random.shuffle(artist_urls)
 
-        if any(x in href for x in [":", "#", "Main_Page", "List_of", "Category"]):
-            continue
+artist_urls = artist_urls[:MAX_ARTISTS]
 
-        full_url = "https://en.wikipedia.org" + href
-        artist_urls.append(full_url)
+print(f"Collected {len(artist_urls)} unique artist URLs")
+print(f"Estimated time to crawl: {len(artist_urls) * 5} seconds (assuming 5s delay)")
 
-        if len(artist_urls) >= MAX_ARTISTS:
-            break
-
-print(f"Collected {len(artist_urls)} artist URLs")  # Print how many artist URLs we collected
-print("estimated time to crawl all artists:", len(artist_urls) * 5, "seconds")  # Estimate total crawling time based on average time per artist
-artist_urls = list(set(artist_urls))  # Remove duplicate URLs
 #--------------------------------------------------------------------------------------------------------------
 def clean_text(text):
     text = re.sub(r"\[\d+\]", "", text)  # Remove reference numbers like [1]
@@ -64,10 +64,12 @@ def clean_year(text):
     return text.strip()
 #--------------------------------------------------------------------------------------------------------------
 current_artist = 0  # Counter to track how many artists we've processed
+elapsed_time_list = [] # List to store elapsed time for each artist for later analysis
+time_start = time.time() # Start timer for entire crawling process
 #--------------------------------------------------------------------------------------------------------------
-for url in artist_urls:  # Visit each artist page
+for i, url in enumerate(artist_urls, 1):
     elapsed_time = time.time()
-    current_artist += 1
+    current_artist = i
     response_artist = requests.get(url, headers=headers)  # Request artist page
     soup_artist = BeautifulSoup(response_artist.text, "html.parser")  # Parse the page
 
@@ -280,12 +282,15 @@ for url in artist_urls:  # Visit each artist page
 
     print_string += f"Genre: {genre} | "
 #--------------------------------------------------------------------------------------------------------------
-    file.write(print_string + "\n")  # Write data to file
-    file.flush()
-    print_string += f"Elapsed Time: {time.time() - elapsed_time:.2f} seconds"  # Add elapsed time for this artist to output
+    FILE.write(print_string + "\n")  # Write data to file
+    FILE.flush()
+    if not FULL_DETAILS:
+       print_string = f"Artist {current_artist}/{len(artist_urls)} | {url} | "
+    if TIME_TELL: 
+        print_string += f"Elapsed Time: {time.time() - elapsed_time:.2f} seconds"  # Add elapsed time for this artist to output
     elapsed_time_list.append(time.time() - elapsed_time)  # Store elapsed time in list for later analysis
     print(print_string)  # Print collected data
     time.sleep(random.uniform(0.5,0.7))  # Wait 1 second between requests to avoid overloading Wikipedia
-file.close()
+FILE.close()
 print(f"Crawling completed in {time.time() - time_start:.2f} seconds")  # Print how long the crawling took
 print(f"Average time per artist: {sum(elapsed_time_list)/len(elapsed_time_list):.2f} seconds")  # Print average time per artist
