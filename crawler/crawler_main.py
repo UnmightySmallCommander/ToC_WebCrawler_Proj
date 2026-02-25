@@ -23,6 +23,12 @@ def get_allowed_urls():
         return allowed
     except Exception:
         return set()
+    
+def get_random_artist():
+    allowed_links = get_allowed_urls()
+    if not allowed_links:
+        return None
+    return random.choice(list(allowed_links))
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
@@ -44,8 +50,11 @@ def clean_year(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-def crawl(url):
+def crawl(url=None,randomize=False):
     allowed_links = get_allowed_urls()
+    if randomize:
+        url = get_random_artist()
+    print("Crawling:", url, 'randomize:', randomize)
     if url not in allowed_links:
         # Return a specific error structure that React can detect
         return {"error_goofed": "Invalid Link", "message": "This link is not in the official K-pop artist list."}
@@ -250,4 +259,3 @@ def crawl(url):
         "group name": group_name,
         "genre": genre
     }
-

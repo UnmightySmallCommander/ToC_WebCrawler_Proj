@@ -11,11 +11,11 @@ def handle_crawl():
     try:
         data = request.json
         url = data.get('input_url')
-        
+        randomize = data.get('random', False)
         if not url:
             return jsonify({"error": "No URL provided"}), 400
 
-        result = crawl(url) # Using your crawler_main.py
+        result = crawl(url, randomize=randomize) # Using your crawler_main.py
         return jsonify(result)
     except Exception as e:
         print(f"Error: {e}")

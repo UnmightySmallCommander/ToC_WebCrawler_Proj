@@ -16,7 +16,7 @@ export default function App() {
         }
       };
 
-  const runCrawler = async () => {
+  const runCrawler = async (random?: boolean) => {
 
     const response = await fetch("http://localhost:5000/crawl", {
       method: "POST",
@@ -24,7 +24,8 @@ export default function App() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        input_url: url
+        input_url: url || 'https://en.wikipedia.org/wiki/Yuto_Adachi',
+        random: random || false
       })
     });
 
@@ -41,19 +42,40 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-slate-900">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900">
       
       {/* Header - Using arbitrary py-[4.5rem] for perfect 18-equivalent padding */}
-      <header className="bg-white border-b">
-        <div className="max-w-5xl mx-auto px-6 py-[4.5rem] text-center">
-          <div className="flex flex-col items-center justify-center gap-4 mb-4">
-            <div className="w-24 h-24 overflow-hidden rounded-full border-2 border-slate-100 shadow-sm">
-              <img src={kpopLogo} alt="Logo" className="w-full h-full object-cover" />
+      {/* Colorful Header Section */}
+      <header className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
+        {/* Decorative background blurs for extra "pop" */}
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-[-10%] left-[-10%] w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-pink-400/20 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative max-w-5xl mx-auto px-6 py-20 text-center">
+          <div className="flex flex-col items-center justify-center gap-6 mb-6">
+            {/* Logo with a "Glow" effect */}
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-pink-400 to-yellow-300 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000"></div>
+              <div className="relative w-28 h-28 overflow-hidden rounded-full border-4 border-white shadow-2xl">
+                <img src={kpopLogo} alt="Logo" className="w-full h-full object-cover" />
+              </div>
             </div>
-            <h1 className="text-4xl font-bold tracking-tight">Web Crawler</h1>
+
+            <div className="space-y-2">
+              <h1 className="text-5xl font-black tracking-tighter text-white drop-shadow-md">
+                K-POP <span className="text-yellow-300">INHALER</span>
+              </h1>
+              <div className="h-1 w-24 bg-yellow-300 mx-auto rounded-full"></div>
+            </div>
           </div>
-          <p className="text-gray-500 text-sm max-w-md mx-auto leading-relaxed">
-            Paste a K-pop singer's Wikipedia page or click Random to start exploring.
+
+          <p className="text-white/90 text-lg font-medium max-w-lg mx-auto leading-relaxed drop-shadow-sm">
+            Dive into the data of your favorite idols. 
+            <span className="block text-white/70 text-sm mt-2 font-normal">
+              Paste a Wikipedia URL or hit Random to begin.
+            </span>
           </p>
         </div>
       </header>
@@ -62,30 +84,40 @@ export default function App() {
       <main className="max-w-4xl mx-auto px-6 py-8">
         
         {/* Input Section - Replaced shadcn components with raw Tailwind */}
-        <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="url"
-              placeholder="Enter URL to crawl..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="flex-1 h-11 px-4 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-            />
-            <button
-              onClick={() => {
-                setShowResults(false);
-                if (!isValidUrl(url)) {
-                  alert("Please enter a valid URL");
-                  return;
-                }
-                setIsLoading(true);
-                runCrawler();
-              }}
-              className="h-11 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95"
-            >
-              {isLoading ? "Crawling..." : "Start Crawl"}
-            </button>
-          </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="url"
+            placeholder="Enter Wikipedia URL..."
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="flex-1 h-11 px-4 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          />
+
+          <button
+            onClick={() => {
+              setShowResults(false);
+              if (!isValidUrl(url)) {
+                alert("Please enter a valid URL");
+                return;
+              }
+              setIsLoading(true);
+              runCrawler();
+            }}
+            className="h-11 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-all active:scale-95"
+          >
+            {isLoading ? "Crawling..." : "Start Crawl"}
+          </button>
+
+          <button
+            onClick={() => {
+              setShowResults(false);
+              setIsLoading(true);
+              runCrawler(true);
+            }}
+            className="h-11 px-6 bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium rounded-lg transition-all active:scale-95"
+          >
+            Random
+          </button>
         </div>
 
 
