@@ -11,14 +11,14 @@ headers = {
 }
 
 # --- 1. Configuration & Setup ---
-MAX_ARTISTS = 4000
-IN_ORDER = True 
+MAX_ARTISTS = 50
+IN_ORDER = False 
 HUB_URL = "https://en.wikipedia.org/wiki/List_of_K-pop_artists" # Replace with your target URL
 HEADERS = {
  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
  "Accept-Language": "en-US,en;q=0.9"
 }
-FILE = open("dataset.txt", "w", encoding="utf-8")
+FILE = open("singer.txt", "w", encoding="utf-8")
 FULL_DETAILS = False
 TIME_TELL = True  
 # Load nationalities for regex
@@ -230,29 +230,45 @@ for i, url in enumerate(artist_urls, 1):
                 group_response = requests.get(group_url, headers=headers)
                 group_soup = BeautifulSoup(group_response.text, "html.parser")
 
-                # Check for "Members" in infobox
                 members_exists = False
+                is_active = False
+
                 infobox = group_soup.select_one("table.infobox")
 
                 if infobox:
                     for row in infobox.find_all("tr"):
                         label = row.find("th", class_="infobox-label")
-                        if label and "Members" in label.text:
-                            members_exists = True
-                            break
 
-                # Check if Discography section exists
+                        if not label:
+                            continue
+
+                        # --- Check members box ---
+                        if "Members" in label.text:
+                            members_cell = row.find("td")
+
+                            if members_cell:
+                                for li in members_cell.find_all("li"):
+                                    href = li.find("a").get("href")
+                                    if 'https://en.wikipedia.org' + href == url:
+                                        members_exists = True
+                                        break
+
+                        # --- Check years active ---
+                        if "Years active" in label.text:
+                            years_cell = row.find("td")
+                            if years_cell and "present" in years_cell.text.lower():
+                                is_active = True
+
                 discography_exists = group_soup.find(id="Discography") is not None
 
-                # If both conditions satisfied → this is a group
-                if members_exists and discography_exists:
+                if members_exists and discography_exists and is_active:
                     group_name = a.get_text(strip=True)
                     break
 
             except:
                 continue
 
-    print_string += f"Group: {group_name} | "
+    print_string += f"Current Group: {group_name} | "
 
 #--------------------------------------------------------------------------------------------------------------
     genre = "Not found"
