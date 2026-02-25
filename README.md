@@ -1,2 +1,2 @@
 # tick-ToC-web_inhaler
-According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyway because bees don't care what humans think is impossible. Yellow, black. Yellow, black. Yellow, black. Yellow, black. Ooh, black and yellow!
+A web crawler that extracts structured information from Wikipedia pages of K-pop artists. The project features a Python backend for crawling and parsing data and a modern React interface built with Vite and Tailwind CSS for visualization.
