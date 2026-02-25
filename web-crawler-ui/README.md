@@ -1,73 +1,84 @@
-# React + TypeScript + Vite
+# Web Crawler UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This folder contains the frontend interface for the K-pop Wikipedia web crawler project.
 
-Currently, two official plugins are available:
+The UI allows users to input a Wikipedia page URL of a K-pop artist or select a random artist. The request is sent to the Python backend crawler, which extracts structured data from the page and returns it to the interface for display.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Purpose
 
-## React Compiler
+The frontend provides a simple and interactive way to run the crawler and visualize the results without using the command line.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+It communicates with the backend API and displays extracted artist information such as:
 
-## Expanding the ESLint configuration
+* Stage name
+* Full name
+* Birth year
+* Nationality
+* Group affiliation
+* Other metadata parsed from the Wikipedia infobox
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Technologies Used
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+* React
+* Vite (development server and build tool)
+* Tailwind CSS (UI styling)
+* Fetch API (communication with backend)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## How It Works
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. The user enters a Wikipedia URL or selects the random option.
+2. The frontend sends a POST request to the backend crawler API.
+
+Example request:
+
+POST `/crawl`
+
+```
+{
+  "url": "https://en.wikipedia.org/wiki/Jennie_(singer)"
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+3. The backend processes the page and returns structured JSON data.
+4. The UI receives the data and renders the results in a formatted card layout.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Development
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Install dependencies:
+
 ```
+npm install
+```
+
+Start the development server:
+
+```
+npm run dev
+```
+
+The interface will run at:
+
+```
+http://localhost:5173
+```
+
+The backend crawler must also be running for the system to function.
+
+## Backend Dependency
+
+This frontend connects to the Python crawler backend running with Flask at:
+
+```
+http://localhost:5000
+```
+
+The backend is responsible for:
+
+* Fetching Wikipedia pages
+* Extracting structured artist information
+* Returning the results as JSON
+
+## Notes
+
+This interface is intended for development and demonstration of the web crawler system. It focuses on visualizing extracted data rather than performing the crawling itself.
+
