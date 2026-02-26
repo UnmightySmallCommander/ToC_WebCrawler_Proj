@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from crawler_main import crawl 
+import os
 
 app = Flask(__name__)
 # This line is critical - it tells the browser port 5173 is allowed
@@ -22,5 +23,5 @@ def handle_crawl():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    # Ensure it's running on port 5000
-    app.run(port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
