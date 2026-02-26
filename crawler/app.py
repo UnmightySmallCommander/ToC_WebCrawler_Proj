@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 # This line is critical - it tells the browser port 5173 is allowed
-CORS(app) 
+CORS(app, resources={r"/crawl": {"origins": "*"}})
 
 @app.route('/crawl', methods=['POST']) # Make sure this matches App.tsx
 def handle_crawl():
