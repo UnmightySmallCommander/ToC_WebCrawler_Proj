@@ -18,7 +18,7 @@ export default function App() {
 
   const runCrawler = async (random?: boolean) => {
 
-    const response = await fetch("https://crawler-backend-hotf.onrender.com", {
+    const response = await fetch("https://crawler-backend-hotf.onrender.com/crawl", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
