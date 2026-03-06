@@ -1,2 +1,2 @@
 # tick-ToC-web_inhaler
-A web crawler that extracts structured information from Wikipedia pages of K-pop artists. The project features a Python backend for crawling and parsing data and a modern React interface built with Vite and Tailwind CSS for visualization.
+A web crawler that extracts structured information from Wikipedia pages of K-pop artists. The backend, written in Python, handles crawling, HTML parsing, and transforming the retrieved content into structured data. The project also includes a modern React interface built with Vite and Tailwind CSS to visualize the extracted information in a clean and interactive format. This project was built to explore automated data collection, backend data processing, and simple frontend data visualization.
